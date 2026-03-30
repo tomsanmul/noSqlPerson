@@ -36,13 +36,13 @@ Open your `pom.xml` file and add these dependencies (Spring Boot will manage the
     <dependency>
         <groupId>software.amazon.awssdk</groupId>
         <artifactId>dynamodb</artifactId>
-<version>2.42.23</version>
+        <version>2.42.23</version>
     </dependency>
 
     <dependency>
         <groupId>software.amazon.awssdk</groupId>
         <artifactId>dynamodb-enhanced</artifactId>
-<version>2.42.23</version>
+        <version>2.42.23</version>
     </dependency>
 
     <!-- Helps Spring Boot handle AWS credentials and region automatically
@@ -50,6 +50,7 @@ Open your `pom.xml` file and add these dependencies (Spring Boot will manage the
         <groupId>io.awspring.cloud</groupId>
         <artifactId>spring-cloud-aws-starter</artifactId>
     </dependency> -->
+
 </dependencies>
 ```
 
@@ -124,6 +125,18 @@ public class Person {
 
     public void setCreatedAt(Instant createdAt) {
         this.createdAt = createdAt;
+    }
+
+    @Override
+    public String toString() {
+        return "Person{" +
+                "id='" + id + '\'' +
+                ", operation='" + operation + '\'' +
+                ", name='" + name + '\'' +
+                ", age=" + age +
+                ", email='" + email + '\'' +
+                ", createdAt=" + createdAt +
+                '}';
     }
 }
 ```
@@ -476,11 +489,11 @@ public class PersonController {
 }
 ```
 
-### How to Test the API (Beginner Examples)
+### How to Test the API
 
 | Operation               | HTTP Method | URL Example                     | Description                       |
 | ----------------------- | ----------- | ------------------------------- | --------------------------------- |
-| Create / Save           | POST        | `/api/persons`                  | Create a new person               |
+| Create / Save           | POST        | `/api/v1/person/`               | Create a new person               |
 | Get one record          | GET         | `/api/persons/{id}/{operation}` | Get specific operation            |
 | Get all for a person    | GET         | `/api/persons/{id}`             | Get all operations for one person |
 | Update                  | PUT         | `/api/persons`                  | Update existing person            |
