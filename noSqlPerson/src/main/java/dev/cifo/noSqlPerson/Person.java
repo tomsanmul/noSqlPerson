@@ -13,6 +13,12 @@ public class Person {
     private String email;
     private Instant createdAt;   // When the person was added
 
+    // Default constructor (required for the Enhanced Client)
+    // This is used by the Enhanced Client to create new instances of Person
+    // It is not used by the application code
+    public Person() {
+    }
+
     /*public Person(String name, int age, String email, Instant createdAt) {
         this.name = name;
         this.age = age;
@@ -84,6 +90,6 @@ public class Person {
                 ", age=" + age +
                 ", email='" + email + '\'' +
                 ", createdAt=" + createdAt +
-                '}';
+                '}' + "\n";
     }
 }
