@@ -36,18 +36,20 @@ Open your `pom.xml` file and add these dependencies (Spring Boot will manage the
     <dependency>
         <groupId>software.amazon.awssdk</groupId>
         <artifactId>dynamodb</artifactId>
+<version>2.42.23</version>
     </dependency>
 
     <dependency>
         <groupId>software.amazon.awssdk</groupId>
         <artifactId>dynamodb-enhanced</artifactId>
+<version>2.42.23</version>
     </dependency>
 
-    <!-- Helps Spring Boot handle AWS credentials and region automatically -->
+    <!-- Helps Spring Boot handle AWS credentials and region automatically
     <dependency>
         <groupId>io.awspring.cloud</groupId>
         <artifactId>spring-cloud-aws-starter</artifactId>
-    </dependency>
+    </dependency> -->
 </dependencies>
 ```
 
