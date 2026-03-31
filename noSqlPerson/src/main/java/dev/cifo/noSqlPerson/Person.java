@@ -16,6 +16,13 @@ public class Person {
     private int age;
     private String email;
     private Instant createdAt;   // When the person was added
+    private Instant updatedAt;   // When the person was updated
+
+    // Default constructor (required for the Enhanced Client)
+    // This is used by the Enhanced Client to create new instances of Person
+    // It is not used by the application code
+    public Person() {
+    }
 
     /*public Person(String name, int age, String email, Instant createdAt) {
         this.name = name;
@@ -79,6 +86,10 @@ public class Person {
         this.createdAt = createdAt;
     }
 
+    public Instant getUpdatedAt() { return updatedAt; }
+
+    public void setUpdatedAt(Instant updatedAt) { this.updatedAt = updatedAt; }
+
     @Override
     public String toString() {
         return "Person{" +
@@ -88,6 +99,7 @@ public class Person {
                 ", age=" + age +
                 ", email='" + email + '\'' +
                 ", createdAt=" + createdAt +
-                '}';
+                ", updatedAt=" + updatedAt +
+                '}' + "\n";
     }
 }

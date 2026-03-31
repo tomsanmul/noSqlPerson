@@ -2,29 +2,108 @@
 
 ## Summary
 
-The **AWS SDK for Java 2.x Enhanced Client** is the modern, official way to work with DynamoDB in Java. It lets you:
+> The **AWS SDK for Java 2.x Enhanced Client** is the modern, official way to work with DynamoDB in Java. It lets you:
 
-- Map your Java objects (like a `Person` class) directly to DynamoDB table items
+- <mark>Map your Java objects</mark> (like a `Person` class) directly to `DynamoDB` table items
 - Save, read, update, and delete data using simple methods
 - Avoid writing lots of low-level code
-- Keep full control over how everything works
+- Keep <mark>full control</mark> over how everything works
 
 ## Step by step
 
 ### Local AWS Credentials Setup (Using AWS CLI)
 
-To let your `Spring Boot` app connect to AWS when running locally, use the <mark>AWS CLI</mark> to save your credentials.
+Install<mark> LInux AWS  CLI </mark> (Command Line Interface) on Ubuntu, follow these steps:
 
-Open your terminal and run this command:
+**Update the Package Index**
 
-```js
+Run the following command to ensure your package list is up-to-date:  
+
+```rust
+sudo apt update
+```
+
+**Install Dependencies**
+
+Ensure you have the necessary dependencies installed:  
+
+```rust
+sudo apt install -y unzip curl
+```
+
+**Download the AWS CLI Installer**
+
+Use `curl` to download the AWS CLI v2 installer:  
+
+```rust
+curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+```
+
+**Extract the Installer**
+
+Unzip the downloaded file:  
+
+```rust
+unzip awscliv2.zip
+```
+
+**Run the Installer**
+
+Run the installation script:  
+
+```rust
+sudo ./aws/install
+```
+
+**Verify the Installation**
+
+Confirm that the AWS CLI is installed and check its version:  
+
+```rust
+aws --version
+```
+
+You should see output similar to:  
+
+```rust
+aws-cli/2.x.x Python/x.x.x Linux/x.x.x
+```
+
+**Clean Up**
+
+(Optional) Remove the downloaded files to free up space:  
+
+```rust
+rm -rf awscliv2.zip aws
+```
+
+**Configure the AWS CLI**
+
+Set up your AWS credentials:  
+
+```rust
 aws configure
 ```
 
-It will ask for your AWS Access Key ID, Secret Access Key, default region (e.g. us-east-1), and output format (json).
+You’ll need to provide:
+
+- **Access Key ID** / **Secret Access Key**
+- **Default region** (e.g., `eu-central-1`)
+- **Output format** (e.g., `json`, `text`, or `table`)
+
+It will ask for your AWS Access Key ID, Secret Access Key, default region (e.g. <mark>eu-central-1</mark>), and output format (<mark>json</mark>).
 These keys are saved safely in a hidden folder on your computer (`~/.aws/credentials`). <mark>Spring Cloud AWS</mark> will automatically read them. 
 
-> **Warning**: For better security, avoid using your root account keys in daily development — prefer IAM user keys instead. (48 words)
+> **Warning**: For better security, avoid using your root account keys in daily development — prefer IAM user keys instead. 
+
+The output will prompt for the profile-specific settings:
+
+```rust
+AWS Access Key ID [None]: YOUR_ACCESS_KEY_ID
+AWS Secret Access Key [None]: YOUR_SECRET_ACCESS_KEY
+Default region name [None]: YOUR_PREFERRED_REGION
+Default output format [None]: json
+```
 
 ### Step 1: Add the Required Dependencies
 
@@ -54,9 +133,25 @@ Open your `pom.xml` file and add these dependencies (Spring Boot will manage the
 </dependencies>
 ```
 
+#### Broken dependency
+
+> The <mark>spring-cloud-aws-starter</mark> `dependency` (from `io.awspring.cloud)` is the root cause of an issue. It brings in a lot of **auto-configuration** classes and can interfere with Spring Boot's default component scanning behavior, especially in certain project structures or when version mismatches exist with your Spring Boot version and the AWS SDK v2 dependencies you're already using (dynamodb + dynamodb-enhanced 2.42.23).
+
+Why this happens ?
+
+- @SpringBootApplication implicitly includes `@ComponentScan` that starts scanning from the **package of your main class** and all sub-packages.
+- Some versions/configurations of <mark>Spring Cloud AWS</mark> (particularly older 2.x or mismatched 3.x) pull in meta-data, auto-config imports, or context setup that can shift effective scanning roots, cause classpath conflicts, or make Spring treat the main class differently during bootstrap.
+- This often manifests as your main class (or other @Component/@Service/@Repository/@Controller classes) not being picked up, or the application failing to start with strange "class not found as bean" behavior.
+
 ### Step 2: Create the Person Class
 
-Create a simple Java class for your data. This class tells DynamoDB how to store the information.
+> **@DynamoDbBean** is a class-level annotation in the **AWS SDK for Java 2.x** (Enhanced DynamoDB client). 
+
+> It marks a POJO as a mappable DynamoDB entity, enabling automatic schema generation via `BeanTableSchema`. Use it with property-level annotations like `@DynamoDbPartitionKey`, `@DynamoDbAttribute`, etc., for seamless object-to-table mapping. 
+
+> For immutable classes, prefer `@DynamoDbImmutable` instead.
+
+Create a simple `Java class` for your data. This class tells <mark>DynamoDB</mark> how to store the information.
 
 ```java
 import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.*;
@@ -170,6 +265,14 @@ public class DynamoDbConfig {
 }
 ```
 
+This **Spring Boot Configuration** class sets up AWS DynamoDB beans for dependency injection.
+
+- `@Configuration` marks this class as a source of Spring beans.
+- The first `@Bean` creates a standard `DynamoDbClient` (low-level client). <mark>Spring Cloud AWS</mark> automatically handles credentials and region configuration.
+- The second `@Bean` creates `DynamoDbEnhancedClient`, which is the high-level <mark>Enhanced DynamoDB client</mark>. It wraps the low-level client and enables easy mapping of Java objects using annotations like `@DynamoDbBean`.
+
+This setup allows you to inject `DynamoDbEnhancedClient` anywhere in your application.
+
 ### Step 4: Save a Person
 
 Here’s how you actually save data. Create a service class:
@@ -190,9 +293,14 @@ public class PersonService {
 
     // Spring automatically injects the Enhanced Client
     public PersonService(DynamoDbEnhancedClient enhancedClient) {
-        // Connect the Person class to a DynamoDB table called "PersonTable"
-        this.personTable = enhancedClient.table("PersonTable", 
-                                               TableSchema.fromBean(Person.class));
+        // Connect the Person class to a 
+        //DynamoDB table called "person"
+        //with schema Person.class
+        this.personTable = 
+                enhancedClient.table(
+                    "person",
+                    TableSchema.fromBean(Person.class)
+                );
     }
 
     /**
@@ -267,7 +375,7 @@ public class PersonService {
 
     public PersonService(DynamoDbEnhancedClient enhancedClient) {
         // Connect the Person class to your DynamoDB table
-        this.personTable = enhancedClient.table("PersonTable",
+        this.personTable = enhancedClient.table("person",
                 TableSchema.fromBean(Person.class));
     }
 
@@ -402,7 +510,7 @@ import java.util.List;
 import java.util.Optional;
 
 @RestController
-@RequestMapping("/api/persons")
+@RequestMapping("/api/v1/person")
 public class PersonController {
 
     private final PersonService personService;
@@ -491,14 +599,16 @@ public class PersonController {
 
 ### How to Test the API
 
-| Operation               | HTTP Method | URL Example                     | Description                       |
-| ----------------------- | ----------- | ------------------------------- | --------------------------------- |
-| Create / Save           | POST        | `/api/v1/person/`               | Create a new person               |
-| Get one record          | GET         | `/api/persons/{id}/{operation}` | Get specific operation            |
-| Get all for a person    | GET         | `/api/persons/{id}`             | Get all operations for one person |
-| Update                  | PUT         | `/api/persons`                  | Update existing person            |
-| Delete one record       | DELETE      | `/api/persons/{id}/{operation}` | Delete specific operation         |
-| Delete all for a person | DELETE      | `/api/persons/{id}`             | Delete everything for one person  |
+<mark>BASE URL</mark> : `/api/v1/person/`
+
+| Operation               | HTTP Method | URL Example                                 | Description                       |
+| ----------------------- | ----------- | ------------------------------------------- | --------------------------------- |
+| Create / Save           | POST        | <mark>BASE URL</mark> +                     | Create a new person               |
+| Get one record          | GET         | <mark>BASE URL</mark> + `{id}/{operation}`  | Get specific operation            |
+| Get all for a person    | GET         | <mark>BASE URL</mark> + `{id}`              | Get all operations for one person |
+| Update                  | PUT         | <mark>BASE URL</mark> +                     | Update existing person            |
+| Delete one record       | DELETE      | <mark>BASE URL</mark> + ``{id}/{operation}` | Delete specific operation         |
+| Delete all for a person | DELETE      | <mark>BASE URL</mark> + `{id}`              | Delete everything for one person  |
 
 ### Example JSON Body for POST / PUT
 
@@ -512,4 +622,4 @@ public class PersonController {
 }
 ```
 
-**Note**: `id` and `operation` are optional in the request body. The service will generate them automatically if missing.
+**Note**: `id` and `operation` are optional in the request body. The service will generate them automatically if missing.``

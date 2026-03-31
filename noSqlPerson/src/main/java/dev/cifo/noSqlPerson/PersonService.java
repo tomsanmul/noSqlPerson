@@ -15,12 +15,19 @@ import java.util.UUID;
 @Service
 public class PersonService {
 
+    // why private final?
+    // final means that the variable cannot be changed after it is initialized
+    // private means that the variable cannot be accessed from outside the class
     private final DynamoDbTable<Person> personTable;
-
+    // dependency injection because it is a dependency of the class
     public PersonService(DynamoDbEnhancedClient enhancedClient) {
         // Connect the Person class to your DynamoDB table
-        this.personTable = enhancedClient.table("person",
-                TableSchema.fromBean(Person.class));
+        // Person.class is the class that will be used to map the table
+        // with items from the table to Person objects, that is DynamoDB beans
+        this.personTable = enhancedClient.table(
+                "person",
+                TableSchema.fromBean(Person.class)
+        );
     }
 
     /**
@@ -49,25 +56,22 @@ public class PersonService {
      * If a person with the same id + operation already exists, it will be replaced.
      */
     public Person save(Person person) {
-        String id = UUID.randomUUID().toString();
+        // If the id is null or blank, create a new person
         if (person.getId() == null || person.getId().isBlank()) {
+            String id = UUID.randomUUID().toString();
             person.setId(id);
+            person.setOperation("CREATE");
+            person.setCreatedAt(Instant.now());
+            // putItem will create a new item if it doesn't exist
+            personTable.putItem(person); // Save to DynamoDB
+            System.out.println("Person saved: " + getPersonByKey(id, "CREATE"));
+        } else {
+            person.setOperation("UPDATE");
+            person.setUpdatedAt(Instant.now());
+            // putItem will update the item if it exists IF NOT IT WILL CREATE IT
+            personTable.putItem(person); // Save to DynamoDB
+            System.out.println("Person updated: " + getPersonByKey(person.getId(), "UPDATE"));
         }
-
-        if (person.getOperation() == null || person.getOperation().isBlank()) {
-            person.setOperation("CREATE");   // Default operation if none provided
-        }
-
-        person.setCreatedAt(Instant.now());
-
-        personTable.putItem(person); // Save to DynamoDB
-
-        Key key = Key.builder()
-                .partitionValue(person.getId())
-                .sortValue(person.getOperation())
-                .build();
-
-        System.out.println("Person saved: " + getPersonByKey(id, "CREATE"));
 
         return person;
     }
@@ -85,5 +89,17 @@ public class PersonService {
                 .build();
         
         return personTable.getItem(key);
+    }
+
+    public Person deletePersonByKey(String id, String operation){
+
+        Key key = Key.builder()
+                .partitionValue(id)
+                .sortValue(operation)
+                .build();
+
+        Person deletedPerson = personTable.deleteItem(key);
+        System.out.println("Person deleted: " + deletedPerson.toString());
+        return deletedPerson;
     }
 }
