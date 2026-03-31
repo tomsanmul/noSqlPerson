@@ -2,9 +2,9 @@
 
 ## Summary
 
-- [noSQL person gsheet]([noSQL_person - Hojas de cálculo de Google](https://docs.google.com/spreadsheets/d/1UYVKKlaXtwYl7nI-MfBhrRZpycEDlwbtR0srz7UiSLg/edit?gid=0#gid=0))
+- [noSQL person gsheet](https://docs.google.com/spreadsheets/d/1UYVKKlaXtwYl7nI-MfBhrRZpycEDlwbtR0srz7UiSLg/edit?gid=0#gid=0)
 
-DynamoDB is a **NoSQL database** that is **schemaless** by design. This means:
+<mark>DynamoDB</mark> is a **NoSQL database** that is **schemaless** by design. This means:
 
 - <mark>Every item in the same table</mark> can have **different fields** (attributes).
 - You don't need to define all possible fields <mark>in advance.</mark>
