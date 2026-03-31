@@ -58,4 +58,11 @@ public class PersonRestController {
     public Person getPersonByKey(@RequestParam String id, @RequestParam String operation) {
         return personService.getPersonByKey(id, operation);
     }
+
+    @DeleteMapping("/deleteByKey")
+    public Person deletePersonByKey(@RequestParam String id, @RequestParam String operation) {
+        return personService.deletePersonByKey(id, operation);
+    }
+
+
 }
