@@ -1,0 +1,14 @@
+type Person {
+  id: ID!
+  operation: String!
+  name: String!
+  age: Int!
+  email: String
+  createdAt: String
+  updatedAt: String
+}
+
+type Query {
+  allPersons: [Person!]!
+  personByKey(id: ID!, operation: String!): Person
+}
