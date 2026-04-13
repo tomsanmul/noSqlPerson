@@ -14,7 +14,7 @@ public class DynamoDbConfig {
     public DynamoDbClient dynamoDbClient() {
 
         return DynamoDbClient.builder()
-                .region(Region.EU_CENTRAL_1)
+                .region(Region.of("eu-central-1"))
                 .build();
     }
 
