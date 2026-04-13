@@ -2,6 +2,7 @@ package dev.cifo.noSqlPerson;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.graphql.data.method.annotation.Argument;
+import org.springframework.graphql.data.method.annotation.MutationMapping;
 import org.springframework.graphql.data.method.annotation.QueryMapping;
 import org.springframework.stereotype.Controller;
 import software.amazon.awssdk.enhanced.dynamodb.model.PageIterable;
@@ -27,5 +28,20 @@ public class PersonGraphQlController {
     public Person personByKey(@Argument String id, @Argument String operation) {
         return personService.getPersonByKey(id, operation);
     }
+
+    @MutationMapping
+    public Person savePerson(@Argument Person person) {
+        return personService.save(person);
+    }
+
+    @MutationMapping
+    public Person deletePersonByKey(@Argument String id, @Argument String operation) {
+        return personService.deletePersonByKey(id, operation);
+    }
+
+   /* @MutationMapping
+    public Person updatePersonByKey(@Argument String id, @Argument String operation) {
+        return personService.updatePersonByKey(id, operation);
+    }*/
 
 }
