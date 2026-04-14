@@ -39,9 +39,9 @@ public class PersonGraphQlController {
         return personService.deletePersonByKey(id, operation);
     }
 
-   /* @MutationMapping
-    public Person updatePersonByKey(@Argument String id, @Argument String operation) {
-        return personService.updatePersonByKey(id, operation);
-    }*/
+   @MutationMapping
+    public Person updatePersonByKey(@Argument Person person) {
+        return personService.save(person);
+    }
 
 }
