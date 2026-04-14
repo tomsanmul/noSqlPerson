@@ -26,3 +26,7 @@ type Mutation {
   deletePersonByKey(id: ID!, operation: String!): Person
   updatePerson(person: person!): Person
 }
+
+type Subscription {
+  personCreated: Person!
+}
