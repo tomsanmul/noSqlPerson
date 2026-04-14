@@ -1,0 +1,87 @@
+query allPersons {
+  allPersons {
+      id
+      operation
+      name
+      age
+      email
+    }
+}
+
+query personByKey {
+  personByKey
+    (
+      id: "a4ed764b-18ff-4abd-b21b-d36b4df72091", 
+      operation: "CREATE"
+    ) 
+
+  {
+    id
+    name
+    age
+    operation
+  }
+}
+
+mutation savePerson {
+  savePerson(
+    person: {
+      id: "1"
+      operation: "STUDENT"
+      name: "Dani"
+      age: 25
+      email: "dani@example.com"
+    }
+  )   
+    {
+      id
+      operation
+      name
+      age
+      email
+    }
+}
+
+mutation deletePersonByKey {
+  deletePersonByKey(
+    id: "ca71f41a-4ec8-4ce9-9ae2-b2519773f0ec" 
+    operation: "STUDENT"
+  )
+     
+    {
+      id
+      operation
+      name
+      age
+      email
+    }
+}
+
+mutation updatePerson {
+  updatePerson(
+    person: {
+      id: "46de2dfe-c324-4790-99e7-0ea9e941be7b"
+      operation: "STUDENT"
+      name: "Dani"
+      age: 26
+      email: "dani@example.com"
+    }
+  )  
+    {
+      id
+      operation
+      name
+      age
+      email
+    }
+}
+
+
+subscription personCreated {
+  personCreated {
+    id
+    name
+    operation
+  }
+}
+
