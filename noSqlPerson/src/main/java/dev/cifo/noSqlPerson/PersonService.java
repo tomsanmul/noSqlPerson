@@ -19,8 +19,9 @@ public class PersonService {
     // final means that the variable cannot be changed after it is initialized
     // private means that the variable cannot be accessed from outside the class
     private final DynamoDbTable<Person> personTable;
+    private final PersonEventPublisher eventPublisher;
     // dependency injection because it is a dependency of the class
-    public PersonService(DynamoDbEnhancedClient enhancedClient) {
+    public PersonService(DynamoDbEnhancedClient enhancedClient, PersonEventPublisher eventPublisher) {
         // Connect the Person class to your DynamoDB table
         // Person.class is the class that will be used to map the table
         // with items from the table to Person objects, that is DynamoDB beans
@@ -28,6 +29,7 @@ public class PersonService {
                 "person",
                 TableSchema.fromBean(Person.class)
         );
+        this.eventPublisher = eventPublisher;
     }
 
     /**
@@ -38,18 +40,6 @@ public class PersonService {
         PageIterable<Person> people = personTable.scan();
         return people;
     }
-
-    /**
-     * Get a specific page of persons from DynamoDB.
-     * @param pageSize The number of items per page
-     * @return A single Page of Person objects
-     */
-    /*public Page<Person> getPersonPage(int pageSize) {
-        PageIterable<Person> people = personTable.scan();
-        return people.stream()
-                .findFirst()
-                .orElse(null);
-    }*/
 
     /**
      * Save a Person.
@@ -65,6 +55,8 @@ public class PersonService {
         personTable.putItem(person); // Save to DynamoDB
         System.out.println("Person saved: " + getPersonByKey(id, person.getOperation()));
 
+        // publish the event, that is the person that was saved
+        eventPublisher.publish(person);
 
         return person;
     }
@@ -79,7 +71,7 @@ public class PersonService {
         //String id = UUID.randomUUID().toString();
         //person.setId(id);
         //person.setOperation("CREATE");
-        person.setCreatedAt(Instant.now());
+        person.setUpdatedAt(Instant.now());
         // putItem will create a new item if it doesn't exist
         personTable.putItem(person); // Save to DynamoDB
         System.out.println("Person saved: " +
@@ -88,7 +80,6 @@ public class PersonService {
 
         return person;
     }
-
 
     /**
      * Get a person by their composite key (id + operation).
@@ -105,6 +96,12 @@ public class PersonService {
         return personTable.getItem(key);
     }
 
+    /**
+     * delete a person by their composite key (id + operation).
+     * @param id The partition key
+     * @param operation The sort key
+     * @return The person if found, null otherwise
+     */
     public Person deletePersonByKey(String id, String operation){
 
         Key key = Key.builder()
