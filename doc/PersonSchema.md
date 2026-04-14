@@ -1,4 +1,4 @@
-# Person shema
+# Person Schema
 
 ## 🎉 What is this schema?
 
@@ -35,8 +35,6 @@ type Person {
 Every person has these fields.  
 The `!` means **required** — you **must** give a value for that field.  
 No `!` means it's optional.
-
-
 
 The app uses `id + operation` together as a **combined key** to find a person. That's why you see `operation` everywhere.
 
@@ -102,8 +100,6 @@ type Subscription {
 
 <mark>This is cool! </mark> 
 If someone adds a new person to the system, your app can **automatically** get notified in real time (like a live notification).
-
-
 
 ## Types
 
@@ -222,8 +218,6 @@ For example:
 Just say the word and I’ll explain with even more simple examples 😊
 
 What would you like to see next?
-
-
 
 Let’s keep it super simple and friendly, just like last time.  
 I’ll explain the words you asked about one by one.
