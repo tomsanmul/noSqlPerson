@@ -52,29 +52,43 @@ public class PersonService {
     }*/
 
     /**
-     * Save or update a Person.
-     * If a person with the same id + operation already exists, it will be replaced.
+     * Save a Person.
      */
     public Person save(Person person) {
         // If the id is null or blank, create a new person
-        if (person.getId() == null || person.getId().isBlank()) {
-            String id = UUID.randomUUID().toString();
-            person.setId(id);
-            person.setOperation("CREATE");
-            person.setCreatedAt(Instant.now());
-            // putItem will create a new item if it doesn't exist
-            personTable.putItem(person); // Save to DynamoDB
-            System.out.println("Person saved: " + getPersonByKey(id, "CREATE"));
-        } else {
-            person.setOperation("UPDATE");
-            person.setUpdatedAt(Instant.now());
-            // putItem will update the item if it exists IF NOT IT WILL CREATE IT
-            personTable.putItem(person); // Save to DynamoDB
-            System.out.println("Person updated: " + getPersonByKey(person.getId(), "UPDATE"));
-        }
+        if (person.getId() == null || person.getId().isBlank())
+            return null;
+        String id = UUID.randomUUID().toString();
+        person.setId(id);
+        person.setCreatedAt(Instant.now());
+        // putItem will create a new item if it doesn't exist
+        personTable.putItem(person); // Save to DynamoDB
+        System.out.println("Person saved: " + getPersonByKey(id, person.getOperation()));
+
 
         return person;
     }
+
+    /**
+     * Update a Person.
+     */
+    public Person updated(Person person) {
+        // If the id is null or blank, create a new person
+        if (person.getId() == null || person.getId().isBlank())
+            return null;
+        //String id = UUID.randomUUID().toString();
+        //person.setId(id);
+        //person.setOperation("CREATE");
+        person.setCreatedAt(Instant.now());
+        // putItem will create a new item if it doesn't exist
+        personTable.putItem(person); // Save to DynamoDB
+        System.out.println("Person saved: " +
+                getPersonByKey(person.getId(), person.getOperation()));
+
+
+        return person;
+    }
+
 
     /**
      * Get a person by their composite key (id + operation).

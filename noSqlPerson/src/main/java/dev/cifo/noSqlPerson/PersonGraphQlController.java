@@ -40,8 +40,8 @@ public class PersonGraphQlController {
     }
 
    @MutationMapping
-    public Person updatePersonByKey(@Argument Person person) {
-        return personService.save(person);
+    public Person updatePerson(@Argument Person person) {
+        return personService.updated(person);
     }
 
 }

@@ -24,5 +24,5 @@ input person {
 type Mutation {
   savePerson(person: person!): Person
   deletePersonByKey(id: ID!, operation: String!): Person
-  updatePersonByKey(person: person!): Person
+  updatePerson(person: person!): Person
 }
