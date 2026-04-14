@@ -12,3 +12,17 @@ type Query {
   allPersons: [Person!]!
   personByKey(id: ID!, operation: String!): Person
 }
+
+input person {
+  id: ID
+  operation: String!
+  name: String!
+  age: Int!
+  email: String
+}
+
+type Mutation {
+  savePerson(person: person!): Person
+  deletePersonByKey(id: ID!, operation: String!): Person
+  updatePerson(person: person!): Person
+}
