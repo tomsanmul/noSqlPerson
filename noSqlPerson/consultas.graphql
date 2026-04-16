@@ -1,3 +1,4 @@
+#Listar Todo
 query allPersons {
   allPersons {
       id
@@ -8,6 +9,7 @@ query allPersons {
     }
 }
 
+#Listar por id
 query personByKey {
   personByKey
     (
@@ -23,6 +25,7 @@ query personByKey {
   }
 }
 
+#Crear y guardar person
 mutation savePerson {
   savePerson(
     person: {
@@ -42,6 +45,7 @@ mutation savePerson {
     }
 }
 
+#Borrar persona por id
 mutation deletePersonByKey {
   deletePersonByKey(
     id: "ca71f41a-4ec8-4ce9-9ae2-b2519773f0ec" 
@@ -57,6 +61,7 @@ mutation deletePersonByKey {
     }
 }
 
+#Actuializar Person (objeto entero)
 mutation updatePerson {
   updatePerson(
     person: {
@@ -76,7 +81,7 @@ mutation updatePerson {
     }
 }
 
-
+#Suscribirse a savePerson (objetoEnvia notificacion a los suscritos cuando hay una alta)
 subscription personCreated {
   personCreated {
     id
