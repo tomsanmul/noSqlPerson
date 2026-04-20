@@ -36,7 +36,10 @@ public class PersonGraphQlController {
 
     @MutationMapping
     public Person savePerson(@Argument Person person) {
-        return personService.save(person);
+        System.out.println("Saving person: " + person.toString());
+        Person personSaved = personService.save(person);
+        System.out.println("Person saved: " + personSaved.toString());
+        return personSaved;
     }
 
     @MutationMapping
