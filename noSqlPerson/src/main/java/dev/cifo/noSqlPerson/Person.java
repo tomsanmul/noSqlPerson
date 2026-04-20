@@ -2,6 +2,7 @@ package dev.cifo.noSqlPerson;
 
 import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.*;
 import java.time.Instant;
+import java.util.UUID;
 
 @DynamoDbBean   // This tells the Enhanced Client this class can be mapped to DynamoDB
 public class Person {
@@ -18,6 +19,7 @@ public class Person {
     // This is used by the Enhanced Client to create new instances of Person
     // It is not used by the application code
     public Person() {
+        this.id = UUID.randomUUID().toString();
     }
 
     /*public Person(String name, int age, String email, Instant createdAt) {
