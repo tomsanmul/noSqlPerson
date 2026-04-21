@@ -19,6 +19,22 @@ export const client = new ApolloClient({
 
 ## After: HTTP + WebSocket with Split Link
 
+### Installing dependency
+
+What we need to do: **Install the `graphql-ws` package** using the package manager:
+
+```bash
+npm install graphql-ws 
+# or yarn add graphql-ws 
+# or pnpm add graphql-ws`
+```
+
+> Once installed, our **subscriptions** will be able to be coded. 
+> 
+> The split link automatically detects subscription operations and routes them through the WebSocket connection, while queries and mutations continue using HTTP.
+
+### Code
+
 ```typescript
 import { ApolloClient, InMemoryCache, HttpLink, split } from '@apollo/client';
 import { GraphQLWsLink } from '@apollo/client/link/subscriptions';
@@ -56,21 +72,21 @@ export const client = new ApolloClient({
 });
 ```
 
-## Key Changes
+### Key Changes
 
-### 1. **New Dependencies**
+#### 1. **New Dependencies**
 
 - `split` - Routes operations to different links
 - `GraphQLWsLink` - Apollo's WebSocket link adapter
 - `getMainDefinition` - Extracts operation type from GraphQL query
 - `createClient` from `graphql-ws` - Creates WebSocket client
 
-### 2. **Dual Transport Setup**
+#### 2. **Dual Transport Setup**
 
 - **`httpLink`** - Handles queries and mutations via HTTP POST
 - **`wsLink`** - Handles subscriptions via WebSocket connection
 
-### 3. **Smart Routing with `split()`**
+#### 3. **Smart Routing with `split()`**
 
 The `split` function acts as a router:
 
@@ -87,12 +103,12 @@ split(
 - Checks if operation is a `subscription` → routes to WebSocket
 - Otherwise (query/mutation) → routes to HTTP
 
-### 4. **Protocol Endpoints**
+#### 4. **Protocol Endpoints**
 
 - **HTTP:** `http://localhost:8080/graphql`
 - **WebSocket:** `ws://localhost:8080/graphql`
 
-## How It Works
+### How It Works
 
 ```
 ┌─────────────────┐
