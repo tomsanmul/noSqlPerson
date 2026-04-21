@@ -3,6 +3,7 @@ import { client } from './client'
 import { GET_ALL_PERSONS } from './graphql/queries'
 import { SAVE_PERSON } from './graphql/mutations'
 import './App.css'
+import PersonCreatedSubscription from './PersonCreatedSubscription';
 
 interface Person {
   id: string
@@ -51,7 +52,7 @@ function App() {
             operation,
             name,
             age,
-            email: `${name.toLowerCase()}@example.com`,
+            email: `${name.toLowerCase()}@yahoo2000.io`,
           },
         },
       })
@@ -69,8 +70,11 @@ function App() {
   if (error) return <p>Error: {error}</p>
 
   return (
+
     <div style={{ padding: '20px' }}>
       <h1>Person GraphQL Sandbox</h1>
+      <hr />
+      <PersonCreatedSubscription />
 
       <form onSubmit={handleSubmit}>
         <hr />
