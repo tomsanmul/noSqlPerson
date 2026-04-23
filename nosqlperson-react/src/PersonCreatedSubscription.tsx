@@ -13,6 +13,7 @@ interface Person {
 export default function PersonCreatedSubscription() {
     const [persons, setPersons] = useState<Person[]>([]);
     const [isConnected, setIsConnected] = useState(false);
+    //const [isError, setIsError] = useState(false)
 
     useEffect(() => {
         // Start the subscription
@@ -43,7 +44,7 @@ export default function PersonCreatedSubscription() {
 
     return (
         <div style={{ padding: '20px', fontFamily: 'Arial, sans-serif' }}>
-            <h2>Person Created Subscription</h2>
+            <h2>Person Created: Subscription</h2>
             <p>Status: {isConnected ? '✅ Listening for new persons...' : 'Disconnected'}</p>
 
             <h3>New Persons ({persons.length})</h3>

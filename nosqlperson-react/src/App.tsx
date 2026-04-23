@@ -78,7 +78,7 @@ function App() {
 
       <form onSubmit={handleSubmit}>
         <hr />
-        <h2>Create Person</h2>
+        <h2>Create Person: Mutation</h2>
         <input
           type="text"
           placeholder="Name"
@@ -95,7 +95,7 @@ function App() {
       </form>
 
       <hr />
-      <h2>Persons List</h2>
+      <h2>Persons List: Query</h2>
       <div>
         {persons.map((person) => (
           <div key={`${person.id}-${person.operation}`}>
