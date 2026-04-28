@@ -2,18 +2,26 @@ package dev.cifo.noSqlPerson;
 
 import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.*;
 import java.time.Instant;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.UUID;
 
 @DynamoDbBean   // This tells the Enhanced Client this class can be mapped to DynamoDB
 public class Person {
 
-    private String id;           // Partition Key (unique ID for the person)
-    private String operation;    // Sort Key (e.g. "CREATE", "UPDATE", "VIEW", "DELETE")
+    private String id;           // Partition Key (unique ID for the person, COURSE)
+    private String operation;    // Sort Key (e.g. "STUDENT", "TEACHER", "STAFF", "LEGAL")
     private String name;
     private int age;
     private String email;
     private Instant createdAt;   // When the person was added
     private Instant updatedAt;   // When the person was updated
+    // GSI
+    private String schoolId;
+    private String schoolItem;
+
+    // Dynamic extra fields (very flexible!)
+    private Map<String, Object> extraAttributes = new HashMap<>();
 
     // Default constructor (required for the Enhanced Client)
     // This is used by the Enhanced Client to create new instances of Person
@@ -46,6 +54,19 @@ public class Person {
     public String getOperation() {
         return operation;
     }
+
+    @DynamoDbSecondaryPartitionKey(indexNames = {})
+    @DynamoDbAttribute("schoolId")
+    public String getSchoolId() {return schoolId ;}
+
+    public void setSchoolId(String schoolId) {this.schoolId = schoolId;}
+
+    @DynamoDbSecondarySortKey(indexNames = {})
+    @DynamoDbAttribute("schoolItem")
+    public String getSchoolItem() {return schoolItem ;}
+
+    public void setSchoolItem(String schoolItem) {this.schoolItem = schoolItem;}
+
 
     public void setOperation(String operation) {
         this.operation = operation;
@@ -88,6 +109,21 @@ public class Person {
 
     public void setUpdatedAt(Instant updatedAt) { this.updatedAt = updatedAt; }
 
+    // ==================== Dynamic Map ====================
+    @DynamoDbAttribute("extraAttributes")
+    public Map<String, Object> getExtraAttributes() {
+        return extraAttributes;
+    }
+
+    public void setExtraAttributes(Map<String, Object> extraAttributes) {
+        this.extraAttributes = extraAttributes != null ? extraAttributes : new HashMap<>();
+    }
+
+    // Helper method to easily add dynamic fields
+    public void addExtraField(String key, Object value) {
+        this.extraAttributes.put(key, value);
+    }
+
     @Override
     public String toString() {
         return "Person{" +
@@ -98,6 +134,8 @@ public class Person {
                 ", email='" + email + '\'' +
                 ", createdAt=" + createdAt +
                 ", updatedAt=" + updatedAt +
+                ", schoolId='" + schoolId + '\'' +
+                ", schoolItem='" + schoolItem + '\'' +
                 '}' + "\n";
     }
 }
