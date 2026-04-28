@@ -10,7 +10,10 @@ import software.amazon.awssdk.enhanced.dynamodb.TableSchema;
 import software.amazon.awssdk.enhanced.dynamodb.model.Page;
 import software.amazon.awssdk.enhanced.dynamodb.model.PageIterable;
 import software.amazon.awssdk.enhanced.dynamodb.model.QueryConditional;
+import software.amazon.awssdk.enhanced.dynamodb.model.BatchWriteItemEnhancedRequest;
+import software.amazon.awssdk.enhanced.dynamodb.model.BatchWriteResult;
 import software.amazon.awssdk.enhanced.dynamodb.model.ScanEnhancedRequest;
+import software.amazon.awssdk.enhanced.dynamodb.model.WriteBatch;
 import software.amazon.awssdk.services.dynamodb.model.AttributeValue;
 
 import java.time.Instant;
@@ -23,10 +26,12 @@ public class PersonService {
     // why private final?
     // final means that the variable cannot be changed after it is initialized
     // private means that the variable cannot be accessed from outside the class
+    private final DynamoDbEnhancedClient enhancedClient;
     private final DynamoDbTable<Person> personTable;
     private final PersonEventPublisher eventPublisher;
     // dependency injection because it is a dependency of the class
     public PersonService(DynamoDbEnhancedClient enhancedClient, PersonEventPublisher eventPublisher) {
+        this.enhancedClient = enhancedClient;
         // Connect the Person class to your DynamoDB table
         // Person.class is the class that will be used to map the table
         // with items from the table to Person objects, that is DynamoDB beans
@@ -51,14 +56,14 @@ public class PersonService {
      */
     public Person save(Person person) {
         // If the id is null or blank, create a new person
-        if (person.getId() == null || person.getId().isBlank())
+        if (person.getCourseId() == null || person.getCourseId().isBlank())
             return null;
         String id = UUID.randomUUID().toString();
-        person.setId(id);
+        person.setCourseId(id);
         person.setCreatedAt(Instant.now());
         // putItem will create a new item if it doesn't exist
         personTable.putItem(person); // Save to DynamoDB
-        System.out.println("Person saved: " + getPersonByKey(id, person.getOperation()));
+        System.out.println("Person saved: " + getPersonByKey(id, person.getCourseItem()));
 
         // publish the event, that is the person that was saved
         eventPublisher.publish(person);
@@ -71,7 +76,7 @@ public class PersonService {
      */
     public Person updated(Person person) {
         // If the id is null or blank, create a new person
-        if (person.getId() == null || person.getId().isBlank())
+        if (person.getCourseId() == null || person.getCourseId().isBlank())
             return null;
         //String id = UUID.randomUUID().toString();
         //person.setId(id);
@@ -80,7 +85,7 @@ public class PersonService {
         // putItem will create a new item if it doesn't exist
         personTable.putItem(person); // Save to DynamoDB
         System.out.println("Person saved: " +
-                getPersonByKey(person.getId(), person.getOperation()));
+                getPersonByKey(person.getCourseId(), person.getCourseItem()));
 
 
         return person;
@@ -119,6 +124,54 @@ public class PersonService {
         return deletedPerson;
     }
 
+
+    /**
+     * Batch save a list of Persons to DynamoDB.
+     * DynamoDB limits batch writes to 25 items per request.
+     * Returns the number of batches processed.
+     */
+    public int saveBatch(List<Person> persons) {
+        int batchSize = 25;
+        int batchCount = 0;
+
+        for (int i = 0; i < persons.size(); i += batchSize) {
+            List<Person> chunk = persons.subList(i, Math.min(i + batchSize, persons.size()));
+
+            WriteBatch.Builder<Person> writeBatchBuilder = WriteBatch.builder(Person.class)
+                    .mappedTableResource(personTable);
+
+            for (Person person : chunk) {
+                person.setCreatedAt(Instant.now());
+                writeBatchBuilder.addPutItem(person);
+            }
+
+            BatchWriteItemEnhancedRequest batchRequest = BatchWriteItemEnhancedRequest.builder()
+                    .writeBatches(writeBatchBuilder.build())
+                    .build();
+
+            BatchWriteResult result = enhancedClient.batchWriteItem(batchRequest);
+
+            // Retry unprocessed items (DynamoDB may throttle)
+            int retries = 0;
+            while (!result.unprocessedPutItemsForTable(personTable).isEmpty() && retries < 3) {
+                retries++;
+                System.out.println("  Retrying " + result.unprocessedPutItemsForTable(personTable).size()
+                        + " unprocessed items (attempt " + retries + ")");
+                WriteBatch.Builder<Person> retryBuilder = WriteBatch.builder(Person.class)
+                        .mappedTableResource(personTable);
+                for (Person p : result.unprocessedPutItemsForTable(personTable)) {
+                    retryBuilder.addPutItem(p);
+                }
+                result = enhancedClient.batchWriteItem(
+                        BatchWriteItemEnhancedRequest.builder()
+                                .writeBatches(retryBuilder.build())
+                                .build());
+            }
+
+            batchCount++;
+        }
+        return batchCount;
+    }
 
     // Filter persons by age using a scan and a filter expression
     // with enhanced client ScanEnhancedRequest

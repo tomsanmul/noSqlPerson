@@ -9,8 +9,8 @@ import java.util.UUID;
 @DynamoDbBean   // This tells the Enhanced Client this class can be mapped to DynamoDB
 public class Person {
 
-    private String id;           // Partition Key (unique ID for the person, COURSE)
-    private String operation;    // Sort Key (e.g. "STUDENT", "TEACHER", "STAFF", "LEGAL")
+    private String courseId;           // Before: id / Partition Key (unique ID for the person, COURSE)
+    private String courseItem;    // Before: operation / Sort Key (e.g. "STUDENT", "TEACHER", "STAFF", "LEGAL")
     private String name;
     private int age;
     private String email;
@@ -21,13 +21,13 @@ public class Person {
     private String schoolItem;
 
     // Dynamic extra fields (very flexible!)
-    private Map<String, Object> extraAttributes = new HashMap<>();
+    private Map<String, String> extraAttributes = new HashMap<>();
 
     // Default constructor (required for the Enhanced Client)
     // This is used by the Enhanced Client to create new instances of Person
     // It is not used by the application code
     public Person() {
-        this.id = UUID.randomUUID().toString();
+        //this.courseId = UUID.randomUUID().toString();
     }
 
     /*public Person(String name, int age, String email, Instant createdAt) {
@@ -39,20 +39,20 @@ public class Person {
 
     // Partition Key (required)
     @DynamoDbPartitionKey
-    @DynamoDbAttribute("id")   // Optional: custom name in DynamoDB
-    public String getId() {
-        return id;
+    @DynamoDbAttribute("courseId")   // Optional: custom name in DynamoDB
+    public String getCourseId() {
+        return courseId;
     }
 
-    public void setId(String id) {
-        this.id = id;
+    public void setCourseId(String courseId) {
+        this.courseId = courseId;
     }
 
     // Sort Key - added for composite primary key (personId + operation)
     @DynamoDbSortKey
-    @DynamoDbAttribute("operation")  // Optional: custom name in DynamoDB
-    public String getOperation() {
-        return operation;
+    @DynamoDbAttribute("courseItem")  // Sort key matching DynamoDB table schema
+    public String getCourseItem() {
+        return courseItem;
     }
 
     @DynamoDbSecondaryPartitionKey(indexNames = {})
@@ -68,8 +68,8 @@ public class Person {
     public void setSchoolItem(String schoolItem) {this.schoolItem = schoolItem;}
 
 
-    public void setOperation(String operation) {
-        this.operation = operation;
+    public void setCourseItem(String courseItem) {
+        this.courseItem = courseItem;
     }
 
     // Normal getters and setters for the other fields
@@ -110,25 +110,25 @@ public class Person {
     public void setUpdatedAt(Instant updatedAt) { this.updatedAt = updatedAt; }
 
     // ==================== Dynamic Map ====================
-    @DynamoDbAttribute("extraAttributes")
-    public Map<String, Object> getExtraAttributes() {
+    /*@DynamoDbAttribute("extraAttributes")
+    public Map<String, String> getExtraAttributes() {
         return extraAttributes;
     }
 
-    public void setExtraAttributes(Map<String, Object> extraAttributes) {
+    public void setExtraAttributes(Map<String, String> extraAttributes) {
         this.extraAttributes = extraAttributes != null ? extraAttributes : new HashMap<>();
     }
 
     // Helper method to easily add dynamic fields
-    public void addExtraField(String key, Object value) {
+    public void addExtraField(String key, String value) {
         this.extraAttributes.put(key, value);
-    }
+    }*/
 
     @Override
     public String toString() {
         return "Person{" +
-                "id='" + id + '\'' +
-                ", operation='" + operation + '\'' +
+                "id='" + courseId + '\'' +
+                ", operation='" + courseItem + '\'' +
                 ", name='" + name + '\'' +
                 ", age=" + age +
                 ", email='" + email + '\'' +
